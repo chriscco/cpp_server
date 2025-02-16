@@ -1,12 +1,15 @@
 #pragma once
 #include <vector>
 #include <sys/epoll.h>
-#include "error_handler.hpp"
 #include <stdlib.h>
 #include <string.h>
+
 #include "channel.hpp"
+#include "error_handler.hpp"
 
 #define MAX_EVENTS_SIZE 1024
+
+class Channel; 
 
 class Epoll {
 private:
@@ -20,7 +23,7 @@ public:
 
     std::vector<Channel*> poll_events(int timeout = -1);
 
-    std::vector<Channel*> updateChannel(Channel* ch);
+    void updateChannel(Channel*);
 };
 
 Epoll::Epoll() : _epoll_fd(-1), _events(nullptr) {
@@ -28,6 +31,14 @@ Epoll::Epoll() : _epoll_fd(-1), _events(nullptr) {
     errif(_epoll_fd < 0, "epoll_fd creation error.");
     _events = new epoll_event[MAX_EVENTS_SIZE];
     bzero(_events, sizeof(*_events) * MAX_EVENTS_SIZE);
+}
+
+Epoll::~Epoll() {
+    if (_epoll_fd != -1) {
+        close(_epoll_fd);
+        _epoll_fd = -1;
+    }
+    delete [] _events;
 }
 
 /**
@@ -52,9 +63,10 @@ std::vector<Channel*> Epoll::poll_events(int timeout) {
         ch->setrevent(_events[i].events);
         eventsRetrieved.emplace_back(ch);
     }
+    return eventsRetrieved;
 }
 
-std::vector<Channel*> Epoll::updateChannel(Channel* ch) {
+void Epoll::updateChannel(Channel* ch) {
     int fd = ch->getfd();
     struct epoll_event evt;
     bzero(&evt, sizeof(evt));
