@@ -75,7 +75,7 @@ int main() {
                     printf("continue reading\n");
                     continue;
                 }
-                // 非阻塞io，以下判断是否完成读取 
+                // 非阻塞io，以下判断是否完成读取, EAGAIN, EWOULDBLOCK表示没有数据可读 
                 else if (read_bytes == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
                     printf("finished reading: errno: %s\n", errno);
                     break;
