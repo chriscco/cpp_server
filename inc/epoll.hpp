@@ -42,7 +42,7 @@ void Epoll::add_fd(int fd, uint32_t op) {
 std::vector<epoll_event> Epoll::poll_events(int timeout) {
     std::vector<epoll_event> eventsRetrieved;
     int nfds = epoll_wait(_epoll_fd, _events, MAX_EVENTS_SIZE, timeout);
-    errif(nfds, "epoll wait error.");
+    errif(nfds < 0, "epoll wait error.");
     for (int i = 0; i < nfds; ++i) {
         eventsRetrieved.emplace_back(_events[i]);
     }
