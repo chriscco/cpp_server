@@ -3,5 +3,8 @@ project(cpp_server)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(cpp_thread_pool server.cpp
-                client.cpp)
+include_directories(${PROJECT_SOURCE_DIR}/inc)
+
+add_executable(cpp_server server.cpp)
+
+add_executable(cpp_client client.cpp)
