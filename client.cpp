@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include "inc/error_handler.hpp"
 
+#define BUFFER_SIZE 1024 
+
 int main() {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     errif(sockfd == -1, "socket create error");
@@ -18,7 +20,7 @@ int main() {
     errif(connect(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr)) == -1, "socket connect error");
     
     while(true){
-        char buf[1024];
+        char buf[BUFFER_SIZE];  //在这个版本，buf大小必须大于或等于服务器端buf大小，不然会出错，想想为什么？
         bzero(&buf, sizeof(buf));
         scanf("%s", buf);
         ssize_t write_bytes = write(sockfd, buf, sizeof(buf));
