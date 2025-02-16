@@ -4,6 +4,7 @@
 #include "error_handler.hpp"
 #include <stdlib.h>
 #include <string.h>
+#include "channel.hpp"
 
 #define MAX_EVENTS_SIZE 1024
 
@@ -17,7 +18,9 @@ public:
 
     void add_fd(int fd, uint32_t op);
 
-    std::vector<epoll_event> poll_events(int timeout = -1);
+    std::vector<Channel*> poll_events(int timeout = -1);
+
+    std::vector<Channel*> updateChannel(Channel* ch);
 };
 
 Epoll::Epoll() : _epoll_fd(-1), _events(nullptr) {
@@ -39,12 +42,28 @@ void Epoll::add_fd(int fd, uint32_t op) {
     epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, fd, &evt);
 }
 
-std::vector<epoll_event> Epoll::poll_events(int timeout) {
-    std::vector<epoll_event> eventsRetrieved;
+std::vector<Channel*> Epoll::poll_events(int timeout) {
+    std::vector<Channel*> eventsRetrieved;
     int nfds = epoll_wait(_epoll_fd, _events, MAX_EVENTS_SIZE, timeout);
     errif(nfds < 0, "epoll wait error.");
-    for (int i = 0; i < nfds; ++i) {
-        eventsRetrieved.emplace_back(_events[i]);
+    for (int i = 0; i < nfds; i++) {
+        // 此处存储的在 updateChannel 中存储到data.ptr的Channel对象指针
+        Channel* ch = (Channel*)_events[i].data.ptr;
+        ch->setrevent(_events[i].events);
+        eventsRetrieved.emplace_back(ch);
     }
-    return eventsRetrieved;
+}
+
+std::vector<Channel*> Epoll::updateChannel(Channel* ch) {
+    int fd = ch->getfd();
+    struct epoll_event evt;
+    bzero(&evt, sizeof(evt));
+    evt.data.ptr = ch;
+    evt.events = ch->getevent();
+    if (ch->getRegisterFlag()) {
+        errif(epoll_ctl(_epoll_fd, EPOLL_CTL_MOD, fd, &evt) == -1, "epoll mod error.");
+    } else {
+        errif(epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, fd, &evt) == -1, "epoll add error.");
+        ch->setRegisterFlag();
+    }
 }
