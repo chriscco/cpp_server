@@ -7,11 +7,10 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "inc/epoll.hpp"
-#include "inc/error_handler.hpp"
-#include "inc/inetaddr.hpp"
-#include "inc/socket.hpp"
-
+#include "inc/epoll.h"
+#include "inc/error_handler.h"
+#include "inc/inetaddr.h"
+#include "inc/socket.h"
 
 #define MAX_EVENT 1024
 
@@ -51,20 +50,27 @@ int main() {
     socket->setnonblocking();
     epoll->add_fd(socket->getfd(), EPOLLIN | EPOLLET);
 
+    Channel* channel = new Channel(epoll, socket->getfd());
+    channel->enableReading();
+
     while (true) {
         // timeout:: -1: 阻塞模式. 0: 非阻塞模式. 返回nfds个触发的事件
-        std::vector<epoll_event> events_queue = epoll->poll_events(-1);
+        std::vector<Channel*> events_queue = epoll->poll_events();
         int nfds = events_queue.size();
 
         for (int i = 0; i < nfds; ++i) {
-            if (events_queue[i].data.fd == socket->getfd()) { //发生的事件来自服务器的socket fd, 表示有新的连接
+            int chfd = events_queue[i]->getfd();
+            if (chfd == socket->getfd()) { //发生的事件来自服务器的socket fd, 表示有新的连接
                 InetAddr* client_addr = new InetAddr();
                 Socket* client_socket = new Socket(socket->accept(client_addr));
                 
                 client_socket->setnonblocking();
                 epoll->add_fd(client_socket->getfd(), EPOLLIN | EPOLLET);
-            } else if (events_queue[i].events & EPOLLIN) { //读取当前fd发生的事件类型并使用&判断是否包含EPOLLIN
-                handleReadEvent(events_queue[i].data.fd);
+
+                Channel* client_channel = new Channel(epoll, client_socket->getfd());
+                client_channel->enableReading();
+            } else if (chfd & EPOLLIN) { //读取当前fd发生的事件类型并使用&判断是否包含EPOLLIN
+                handleReadEvent(chfd);
             }
         }
     }

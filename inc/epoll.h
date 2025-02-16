@@ -3,9 +3,12 @@
 #include <sys/epoll.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 #include "channel.h"
-#include "error_handler.hpp"
+#include "error_handler.h"
 
 #define MAX_EVENTS_SIZE 1024
 

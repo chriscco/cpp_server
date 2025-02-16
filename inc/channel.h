@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 
-#include "error_handler.hpp"
+#include "error_handler.h"
 #include "epoll.h"
 
 class Epoll;

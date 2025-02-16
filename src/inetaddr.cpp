@@ -1,4 +1,4 @@
-#include "inetaddr.h"
+#include "../inc/inetaddr.h"
 
 struct sockaddr_in& InetAddr::get_addr() { return _addr; }
 

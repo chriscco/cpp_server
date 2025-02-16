@@ -1,4 +1,4 @@
-#include "socket.h"
+#include "../inc/socket.h"
 
 Socket::Socket() : _fd(-1) {
     _fd = socket(AF_INET, SOCK_STREAM, 0);

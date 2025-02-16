@@ -5,6 +5,14 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(${PROJECT_SOURCE_DIR}/inc)
 
-add_executable(server server.cpp)
+set(SRC_FILES
+    ${PROJECT_SOURCE_DIR}/src/socket.cpp
+    ${PROJECT_SOURCE_DIR}/src/channel.cpp
+    ${PROJECT_SOURCE_DIR}/src/epoll.cpp
+    ${PROJECT_SOURCE_DIR}/src/inetaddr.cpp
+    ${PROJECT_SOURCE_DIR}/src/error_handler.cpp
+    )
 
-add_executable(client client.cpp)
+add_executable(server server.cpp ${SRC_FILES})
+
+add_executable(client client.cpp ${SRC_FILES})

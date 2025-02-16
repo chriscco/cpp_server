@@ -1,4 +1,4 @@
-#include "channel.h"
+#include "../inc/channel.h"
 
 Channel::Channel(Epoll* epoll, int fd) : 
     _fd(fd), _epoll(epoll), _event(0), _revent(0), _registered(false) {};

@@ -3,7 +3,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
-#include "inc/error_handler.hpp"
+#include "inc/error_handler.h"
 
 #define BUFFER_SIZE 1024
 
