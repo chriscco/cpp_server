@@ -5,6 +5,6 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(${PROJECT_SOURCE_DIR}/inc)
 
-add_executable(cpp_server server.cpp)
+add_executable(server server.cpp)
 
-add_executable(cpp_client client.cpp)
+add_executable(client client.cpp)
