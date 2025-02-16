@@ -1,23 +1,4 @@
-#pragma once
-#include "inetaddr.hpp"
-
-
-class Socket {
-private:
-    int _fd;
-public:
-    Socket();
-    Socket(int);
-    ~Socket();
-
-    void bind(InetAddr*);
-    int accept(InetAddr*);
-
-    void listen();
-    void setnonblocking() ;
-
-    int getfd();
-};
+#include "socket.h"
 
 Socket::Socket() : _fd(-1) {
     _fd = socket(AF_INET, SOCK_STREAM, 0);
