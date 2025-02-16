@@ -18,6 +18,7 @@
 void handleReadEvent(int sockfd) {
     char buf[1024];
     while (true) {
+        bzero(&buf, sizeof(buf));
         ssize_t read_bytes = read(sockfd, buf, sizeof(buf));
         if (read_bytes > 0) {
             printf("message from client: %s with sockfd: %d\n", buf, sockfd);
@@ -48,11 +49,9 @@ int main() {
     
     Epoll* epoll = new Epoll();
     socket->setnonblocking();
-    epoll->add_fd(socket->getfd(), EPOLLIN | EPOLLET);
 
     Channel* channel = new Channel(epoll, socket->getfd());
     channel->enableReading();
-
     while (true) {
         // timeout:: -1: 阻塞模式. 0: 非阻塞模式. 返回nfds个触发的事件
         std::vector<Channel*> events_queue = epoll->poll_events();
@@ -65,7 +64,6 @@ int main() {
                 Socket* client_socket = new Socket(socket->accept(client_addr));
                 
                 client_socket->setnonblocking();
-                epoll->add_fd(client_socket->getfd(), EPOLLIN | EPOLLET);
 
                 Channel* client_channel = new Channel(epoll, client_socket->getfd());
                 client_channel->enableReading();

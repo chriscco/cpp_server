@@ -46,7 +46,8 @@ void Epoll::updateChannel(Channel* ch) {
     bzero(&evt, sizeof(evt));
     evt.data.ptr = ch;
     evt.events = ch->getevent();
-    if (ch->getRegisterFlag()) {
+
+    if (ch->getRegisterFlag() == 1) {
         errif(epoll_ctl(_epoll_fd, EPOLL_CTL_MOD, fd, &evt) == -1, "epoll mod error.");
     } else {
         errif(epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, fd, &evt) == -1, "epoll add error.");
