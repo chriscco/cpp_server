@@ -1,17 +1,17 @@
 #include "../inc/server.h"
 
-Server::Server(EventLoop* eventLoop) : _loop(eventLoop) {
-    Socket* socket = new Socket();
-    InetAddr* server_addr = new InetAddr("127.0.0.1", 8888);
-    socket->bind(server_addr);
-    socket->listen();
-    socket->setnonblocking();
+/**
+ * @brief 新建Server实例时创建一个Acceptor实例，将Server的newConnection函数绑定至
+ * Acceptor实例的acceptConnection函数，当新的连接被触发时，Acceptor通过callback函数调用
+ * newConnection，其中具体的逻辑和操作仍由Server类管理
+ * @param eventLoop
+ */
+Server::Server(EventLoop* eventLoop) : _loop(eventLoop), _acceptor(nullptr) {
+    _acceptor = new Acceptor(_loop);
 
-    Channel* channel = new Channel(_loop, socket->getfd());
     /** callback被调用时自动调用newConnection(), 并传入socket */
-    std::function<void()> callback = std::bind(&Server::newConnection, this, socket);
-    channel->setCallback(callback);
-    channel->enableReading();
+    std::function<void(Socket*)> callback = std::bind(&Server::newConnection, this, std::placeholders::_1);
+    _acceptor->setNewConnectionCallback(callback);
 }
 
 void Server::handleReadEvent(int sockfd) {

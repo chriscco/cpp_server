@@ -1,4 +1,5 @@
 #pragma once 
+#include <functional>
 #include "event_loop.h"
 #include "channel.h"
 #include "socket.h"
@@ -19,5 +20,9 @@ private:
     Socket* _socket;
     InetAddr* _inetaddr;
 public:
-    
+    Acceptor(EventLoop*);
+    ~Acceptor();
+    void acceptConnection();
+    std::function<void(Socket*)> newConnectionCallback;
+    void setNewConnectionCallback(std::function<void(Socket*)>);
 };

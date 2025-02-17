@@ -15,6 +15,11 @@ void EventLoop::loop() {
         }
     }
 }
+
+/**
+ * @brief 在 EventLoop 中注册自己的channel
+ * @param 当前需要加入epoll的channel
+ */
 void EventLoop::updateChannel(Channel* ch) {
     _epoll->updateChannel(ch);
 }
