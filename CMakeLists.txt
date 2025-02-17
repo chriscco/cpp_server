@@ -15,6 +15,7 @@ set(SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/server.cpp
     ${PROJECT_SOURCE_DIR}/src/acceptor.cpp
     ${PROJECT_SOURCE_DIR}/src/connection.cpp
+    ${PROJECT_SOURCE_DIR}/src/buffer.cpp
     )
 
 add_executable(driver driver.cpp ${SRC_FILES})
