@@ -16,8 +16,10 @@ set(SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/acceptor.cpp
     ${PROJECT_SOURCE_DIR}/src/connection.cpp
     ${PROJECT_SOURCE_DIR}/src/buffer.cpp
-    )
-
+    ${PROJECT_SOURCE_DIR}/src/threadpool.cpp
+)
 add_executable(driver driver.cpp ${SRC_FILES})
 
 add_executable(client client.cpp ${SRC_FILES})
+
+target_link_libraries(driver pthread)
