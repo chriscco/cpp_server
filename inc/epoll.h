@@ -10,7 +10,7 @@
 #include "channel.h"
 #include "error_handler.h"
 
-#define MAX_EVENTS_SIZE 1024
+#define MAX_EVENTS_SIZE 1000
 
 class Channel; 
 

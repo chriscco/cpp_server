@@ -24,7 +24,7 @@ void Acceptor::acceptConnection() {
     InetAddr* client_addr = new InetAddr();
     Socket* client_socket = new Socket(_socket->accept(client_addr));
     
-    printf("new connection from fd: %d, addr: %s, port: %d", client_socket->getfd(), 
+    printf("new connection from fd: %d, addr: %s, port: %d\n", client_socket->getfd(), 
                 inet_ntoa(client_addr->get_addr().sin_addr), ntohs(client_addr->get_addr().sin_port));
     client_socket->setnonblocking();
     newConnectionCallback(client_socket);
