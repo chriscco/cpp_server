@@ -9,6 +9,13 @@ Socket::Socket(int fd) : _fd(fd) {
     errif(fd < 0, "socket error in Socket(int).");
 }
 
+Socket::~Socket() {
+    if (_fd != -1) {
+        close(_fd);
+        _fd = -1;
+    }
+}
+
 void Socket::bind(InetAddr* addr) {
     int b = ::bind(_fd, (sockaddr*)&addr->get_addr(), addr->get_len());
     errif(b < 0, "bind error.");
