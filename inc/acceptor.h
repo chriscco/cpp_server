@@ -18,11 +18,10 @@ private:
     EventLoop* _loop;
     Channel* _channel;
     Socket* _socket;
-    InetAddr* _inetaddr;
+    std::function<void(Socket*)> newConnectionCallback;
 public:
     Acceptor(EventLoop*);
     ~Acceptor();
     void acceptConnection();
-    std::function<void(Socket*)> newConnectionCallback;
     void setNewConnectionCallback(std::function<void(Socket*)>);
 };

@@ -14,7 +14,8 @@ public:
     InetAddr(const char* ip, uint16_t port);
     ~InetAddr();
 
-    struct sockaddr_in& get_addr();
+    struct sockaddr_in get_addr();
+    socklen_t get_len();
 
-    socklen_t& get_len();
+    void setInetAddr(sockaddr_in addr, socklen_t addr_len);
 };

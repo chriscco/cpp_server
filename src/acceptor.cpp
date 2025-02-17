@@ -2,8 +2,8 @@
 
 Acceptor::Acceptor(EventLoop* loop) : _loop(loop){
     _socket = new Socket();
-    _inetaddr = new InetAddr("127.0.0.1", 8888);
-    _socket->bind(_inetaddr);
+    InetAddr* addr = new InetAddr("127.0.0.1", 8888);
+    _socket->bind(addr);
     _socket->listen();
     _socket->setnonblocking();
     
@@ -12,16 +12,23 @@ Acceptor::Acceptor(EventLoop* loop) : _loop(loop){
     std::function<void()> callback = std::bind(&Acceptor::acceptConnection, this);
     _channel->setCallback(callback);
     _channel->enableReading();
+    delete addr;
 }
 
 Acceptor::~Acceptor() {
     delete _socket;
-    delete _inetaddr;
     delete _channel;
 }
 
 void Acceptor::acceptConnection() {
-    newConnectionCallback(_socket);
+    InetAddr* client_addr = new InetAddr();
+    Socket* client_socket = new Socket(_socket->accept(client_addr));
+    
+    printf("new connection from fd: %d, addr: %s, port: %d", client_socket->getfd(), 
+                inet_ntoa(client_addr->get_addr().sin_addr), ntohs(client_addr->get_addr().sin_port));
+    client_socket->setnonblocking();
+    newConnectionCallback(client_socket);
+    delete client_addr;
 }
 
 void Acceptor::setNewConnectionCallback(std::function<void(Socket*)> callback) {

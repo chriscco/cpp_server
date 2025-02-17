@@ -17,14 +17,21 @@ Socket::~Socket() {
 }
 
 void Socket::bind(InetAddr* addr) {
-    int b = ::bind(_fd, (sockaddr*)&addr->get_addr(), addr->get_len());
-    errif(b < 0, "bind error.");
+    struct sockaddr_in address = addr->get_addr();
+    socklen_t addr_len = addr->get_len();
+    errif(::bind(_fd, (sockaddr*)&address, addr_len), "socket bind error.");
+    addr->setInetAddr(address, addr_len);
 }
+    
 
 int Socket::accept(InetAddr* addr) {
-    int a = ::accept(_fd, (sockaddr*)&addr->get_addr(), &addr->get_len());
-    errif(a < 0, "accept error.");
-    return a;
+    struct sockaddr_in address;
+    socklen_t addr_len = sizeof(address);
+    bzero(&address, addr_len);
+    int client_sockfd = ::accept(_fd, (sockaddr*)&address, &addr_len);
+    errif(client_sockfd == -1, "socket accept error.");
+    addr->setInetAddr(address, addr_len);
+    return client_sockfd;
 }
 
 void Socket::listen() {
