@@ -24,6 +24,7 @@ ThreadPool::~ThreadPool() {
         _stop = true;
     }
     _condition_var.notify_all();
+    // 阻塞主线程等待目标线程执行完毕
     for (auto& th : _threads) {
         if (th.joinable()) {
             th.join();
