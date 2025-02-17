@@ -1,7 +1,7 @@
 #include "../inc/connection.h"
 
 Connection::Connection(EventLoop* loop, Socket* socket) : _loop(loop), _socket(socket), 
-                                                        _channel(nullptr) {
+                                        _channel(nullptr), _inBuffer(new std::string()) {
     _channel = new Channel(_loop, _socket->getfd());
     std::function<void()> callback = std::bind(&Connection::echo, this, _socket->getfd());
     _channel->setCallback(callback);

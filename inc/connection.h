@@ -16,6 +16,7 @@ private:
     Channel* _channel;
     Socket* _socket;
     Buffer* _readBuffer;
+    std::string* _inBuffer;
     std::function<void(Socket*)> _deleteCallback;
 public:
     Connection(EventLoop*, Socket*);
