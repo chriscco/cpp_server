@@ -8,6 +8,7 @@ InetAddr::InetAddr() {
     bzero(&_addr, sizeof(_addr));
     _addr_len = sizeof(_addr);
 }
+InetAddr::~InetAddr() {};
 
 InetAddr::InetAddr(const char* ip, uint16_t port) {
     bzero(&_addr, _addr_len);

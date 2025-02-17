@@ -1,6 +1,6 @@
 #pragma once
 #include "inetaddr.h"
-
+#include <unistd.h>
 
 class Socket {
 private:
