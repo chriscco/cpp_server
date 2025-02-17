@@ -1,11 +1,11 @@
 #include "../inc/channel.h"
 
-Channel::Channel(Epoll* epoll, int fd) : 
-    _fd(fd), _epoll(epoll), _event(0), _revent(0), _registered(false) {};
+Channel::Channel(EventLoop* loop, int fd) : 
+    _loop(loop), _fd(fd), _event(0), _revent(0), _registered(false) {};
 
 void Channel::enableReading() {
     _event = EPOLLIN | EPOLLET;
-    _epoll->updateChannel(this);
+    _loop->updateChannel(this);
 }
 
 int Channel::getfd() { return _fd; }
@@ -19,4 +19,10 @@ bool Channel::getRegisterFlag() { return _registered; }
 
 void Channel::setrevent(uint32_t evt) {
     _revent = evt;
+}
+void Channel::handleEvent() {
+    _callback();
+}
+void Channel::setCallback(std::function<void()> callback) {
+    _callback = callback;
 }
