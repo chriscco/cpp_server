@@ -13,6 +13,8 @@ set(SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/error_handler.cpp
     ${PROJECT_SOURCE_DIR}/src/event_loop.cpp
     ${PROJECT_SOURCE_DIR}/src/server.cpp
+    ${PROJECT_SOURCE_DIR}/src/acceptor.cpp
+    ${PROJECT_SOURCE_DIR}/src/connection.cpp
     )
 
 add_executable(driver driver.cpp ${SRC_FILES})
