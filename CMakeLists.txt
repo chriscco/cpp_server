@@ -11,8 +11,10 @@ set(SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/epoll.cpp
     ${PROJECT_SOURCE_DIR}/src/inetaddr.cpp
     ${PROJECT_SOURCE_DIR}/src/error_handler.cpp
+    ${PROJECT_SOURCE_DIR}/src/event_loop.cpp
+    ${PROJECT_SOURCE_DIR}/src/server.cpp
     )
 
-add_executable(server server.cpp ${SRC_FILES})
+add_executable(driver driver.cpp ${SRC_FILES})
 
 add_executable(client client.cpp ${SRC_FILES})
