@@ -3,6 +3,13 @@
 Channel::Channel(EventLoop* loop, int fd) : 
     _loop(loop), _fd(fd), _event(0), _revent(0), _registered(false) {};
 
+Channel::~Channel() {
+    if (_fd != -1) {
+        close(_fd);
+        _fd = 1;
+    }
+}
+
 void Channel::enableReading() {
     _event = EPOLLIN | EPOLLET;
     _loop->updateChannel(this);
