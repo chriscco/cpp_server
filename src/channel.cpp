@@ -1,7 +1,8 @@
 #include "../inc/channel.h"
 
 Channel::Channel(EventLoop* loop, int fd) : 
-    _loop(loop), _fd(fd), _event(0), _revent(0), _registered(false) {};
+    _loop(loop), _fd(fd), _event(0), _revent(0),
+     _registered(false), _useThreadPool(true) {};
 
 Channel::~Channel() {
     if (_fd != -1) {
@@ -20,6 +21,7 @@ void Channel::enableReading() {
 }
 void Channel::setET() {
     _event |= EPOLLET;
+    _loop->updateChannel(this);
 }
 
 int Channel::getfd() { return _fd; }
@@ -35,8 +37,21 @@ void Channel::setrevent(uint32_t evt) {
     _revent = evt;
 }
 void Channel::handleEvent() {
-    _loop->addThread(_callback);
+    if (_ready & (EPOLLIN | EPOLLPRI)) {
+        if (_useThreadPool) { 
+            _loop->addThread(_readCallback); 
+        } else { 
+            _readCallback(); 
+        }
+    } else if (_ready & EPOLLOUT) {
+        if (_useThreadPool) { 
+            _loop->addThread(_writeCallback); 
+        } else { 
+            _writeCallback(); 
+        }
+    }
 }
-void Channel::setCallback(std::function<void()> callback) {
-    _callback = callback;
+void Channel::setReadCallback(std::function<void()> callback) {
+    _readCallback = callback;
 }
+void Channel::setUseThread(bool use) { _useThreadPool = use; }

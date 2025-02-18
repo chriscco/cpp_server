@@ -25,9 +25,12 @@ private:
     uint32_t _event;
     /** 存储当前epoll_wait()返回的具体事件 */
     uint32_t _revent;
+    uint32_t _ready;
     /** 判断当前fd是否已经加入epoll红黑树 */
     bool _registered;
-    std::function<void()> _callback;
+    bool _useThreadPool;
+    std::function<void()> _readCallback;
+    std::function<void()> _writeCallback;
 public: 
     Channel(EventLoop*, int);
     ~Channel();
@@ -38,11 +41,12 @@ public:
 
     void setRegisterFlag();
     bool getRegisterFlag();
+    void setUseThread(bool);
 
     int getfd();
     uint32_t getevent();
     uint32_t getrevent();
 
     void setrevent(uint32_t);
-    void setCallback(std::function<void()>);
+    void setReadCallback(std::function<void()>);
 };
