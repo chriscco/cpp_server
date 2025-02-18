@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(cpp_server)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${PROJECT_SOURCE_DIR}/inc)
+
+find_package(Threads REQUIRED)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 
 set(SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/socket.cpp
@@ -22,4 +27,6 @@ add_executable(driver driver.cpp ${SRC_FILES})
 
 add_executable(client client.cpp ${SRC_FILES})
 
-target_link_libraries(driver pthread)
+add_executable(test threadTest.cpp ${SRC_FILES})
+
+target_link_libraries(driver PRIVATE Threads::Threads)

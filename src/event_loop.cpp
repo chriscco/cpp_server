@@ -2,6 +2,7 @@
 
 EventLoop::EventLoop() : _epoll(nullptr), _quit(false) {
     _epoll = new Epoll();
+    _threadPool = new ThreadPool();
 }
 EventLoop::~EventLoop() {
     delete _epoll;
@@ -22,4 +23,8 @@ void EventLoop::loop() {
  */
 void EventLoop::updateChannel(Channel* ch) {
     _epoll->updateChannel(ch);
+}
+
+void EventLoop::addThread(std::function<void()> task) {
+    _threadPool->add(task);
 }

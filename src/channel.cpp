@@ -28,7 +28,7 @@ void Channel::setrevent(uint32_t evt) {
     _revent = evt;
 }
 void Channel::handleEvent() {
-    _callback();
+    _loop->addThread(_callback);
 }
 void Channel::setCallback(std::function<void()> callback) {
     _callback = callback;
