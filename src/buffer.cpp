@@ -17,3 +17,7 @@ void Buffer::getline() {
     _buf.clear();
     std::getline(std::cin, _buf);
 }
+void Buffer::setBuffer(const char* buf) {
+    _buf.clear();
+    _buf.append(buf);
+}
