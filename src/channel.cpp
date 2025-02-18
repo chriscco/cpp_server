@@ -10,9 +10,16 @@ Channel::~Channel() {
     }
 }
 
+/**
+ * @brief EPOLLPRI 代表接收紧急事件
+ * EPOLL被默认设置为LT(水平触发)模式
+ */
 void Channel::enableReading() {
-    _event = EPOLLIN | EPOLLET;
+    _event |= EPOLLIN | EPOLLPRI;
     _loop->updateChannel(this);
+}
+void Channel::setET() {
+    _event |= EPOLLET;
 }
 
 int Channel::getfd() { return _fd; }

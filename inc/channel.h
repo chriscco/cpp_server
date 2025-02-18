@@ -33,6 +33,7 @@ public:
     ~Channel();
 
     void enableReading();
+    void setET();
     void handleEvent();
 
     void setRegisterFlag();
