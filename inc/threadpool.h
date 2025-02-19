@@ -7,6 +7,7 @@
 #include <functional>
 #include <thread>
 #include <pthread.h>
+#include <future> 
 
 class ThreadPool {
 private:
@@ -18,5 +19,29 @@ private:
 public:
     ThreadPool(int size = std::thread::hardware_concurrency());
     ~ThreadPool();
-    void add(std::function<void()> task);
+
+    template<class F, class... Args>
+    auto add(F&& f, Args&&... args) 
+    -> std::future<typename std::result_of<F(Args...)>::type>;
 };
+
+template<class F, class... Args>
+auto ThreadPool::add(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type> {
+    using return_type = typename std::result_of<F(Args...)>::type;
+    
+    auto task = std::make_shared<std::packaged_task<return_type()>>(
+        std::bind(std::forward<F>(f), std::forward<Args>(args)...)
+    );
+
+    std::future<return_type> res = task->get_future();
+    {
+        std::unique_lock<std::mutex> lock(_mutex_lock);
+        if (_stop) {
+            throw std::runtime_error("enqueue on stopped threadpool");
+        }
+        // (*task)() 调用 packaged_task, 实际执行封装在其中的f(args...);
+        _tasks.emplace([task]() { (*task)(); });
+    }
+    _condition_var.notify_one();
+    return res; 
+}

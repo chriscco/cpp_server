@@ -2,16 +2,17 @@
 
 Acceptor::Acceptor(EventLoop* loop) : _loop(loop){
     _socket = new Socket();
-    InetAddr* addr = new InetAddr("127.0.0.1", 8888);
+    InetAddr* addr = new InetAddr("127.0.0.1", 8080);
     _socket->bind(addr);
     _socket->listen();
-    _socket->setnonblocking();
+    // _socket->setnonblocking();
     
     _channel = new Channel(_loop, _socket->getfd());
 
     std::function<void()> callback = std::bind(&Acceptor::acceptConnection, this);
-    _channel->setCallback(callback);
+    _channel->setReadCallback(callback);
     _channel->enableReading();
+    _channel->setUseThread(false);
     delete addr;
 }
 

@@ -17,11 +17,12 @@ private:
     Socket* _socket;
     Buffer* _readBuffer;
     std::string* _inBuffer;
-    std::function<void(Socket*)> _deleteCallback;
+    std::function<void(int)> _deleteCallback;
 public:
     Connection(EventLoop*, Socket*);
     ~Connection();
 
     void echo(int sockfd);
-    void setDeleteCallback(std::function<void(Socket*)>);
+    void setDeleteCallback(std::function<void(int)>);
+    void send(int);
 };

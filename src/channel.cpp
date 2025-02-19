@@ -1,7 +1,7 @@
 #include "../inc/channel.h"
 
 Channel::Channel(EventLoop* loop, int fd) : 
-    _loop(loop), _fd(fd), _event(0), _revent(0),
+    _loop(loop), _fd(fd), _event(0), _revent(0), _ready(0),
      _registered(false), _useThreadPool(true) {};
 
 Channel::~Channel() {
@@ -29,8 +29,10 @@ int Channel::getfd() { return _fd; }
 uint32_t Channel::getevent() { return _event; }
 
 uint32_t Channel::getrevent() { return _revent; }
+uint32_t Channel::getready() { return _ready; }
 
-void Channel::setRegisterFlag() { _registered = true; }
+void Channel::setReady(uint32_t r) { _ready = r; } 
+void Channel::setRegisterFlag(bool in) { _registered = in; }
 bool Channel::getRegisterFlag() { return _registered; }
 
 void Channel::setrevent(uint32_t evt) {
@@ -43,7 +45,8 @@ void Channel::handleEvent() {
         } else { 
             _readCallback(); 
         }
-    } else if (_ready & EPOLLOUT) {
+    } 
+    if (_ready & EPOLLOUT) {
         if (_useThreadPool) { 
             _loop->addThread(_writeCallback); 
         } else { 

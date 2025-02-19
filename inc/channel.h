@@ -39,13 +39,15 @@ public:
     void setET();
     void handleEvent();
 
-    void setRegisterFlag();
+    void setReady(uint32_t);
+    void setRegisterFlag(bool in = true);
     bool getRegisterFlag();
-    void setUseThread(bool);
+    void setUseThread(bool in = true);
 
     int getfd();
     uint32_t getevent();
     uint32_t getrevent();
+    uint32_t getready();
 
     void setrevent(uint32_t);
     void setReadCallback(std::function<void()>);

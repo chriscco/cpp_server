@@ -6,7 +6,7 @@ Socket::Socket() : _fd(-1) {
 }
 
 Socket::Socket(int fd) : _fd(fd) {
-    errif(fd < 0, "socket error in Socket(int).");
+    errif(_fd < 0, "socket error in Socket(int).");
 }
 
 Socket::~Socket() {
@@ -36,6 +36,11 @@ int Socket::accept(InetAddr* addr) {
 
 void Socket::listen() {
     errif(::listen(_fd, SOMAXCONN) < 0, "listen error.");
+}
+
+void Socket::connect(InetAddr* addr) {
+    struct sockaddr_in address = addr->get_addr();
+    errif(::connect(_fd, (sockaddr*)&address, sizeof(address)) == -1, "connect error.");
 }
 
 void Socket::setnonblocking() {

@@ -27,4 +27,5 @@ public:
     std::vector<Channel*> poll_events(int timeout = -1);
 
     void updateChannel(Channel*);
+    void deleteChannel(Channel*);
 };

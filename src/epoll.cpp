@@ -34,7 +34,7 @@ std::vector<Channel*> Epoll::poll_events(int timeout) {
     for (int i = 0; i < nfds; i++) {
         // 此处存储的在 updateChannel 中存储到data.ptr的Channel对象指针
         Channel* ch = (Channel*)_events[i].data.ptr;
-        ch->setrevent(_events[i].events);
+        ch->setReady(_events[i].events);
         eventsRetrieved.emplace_back(ch);
     }
     return eventsRetrieved;
@@ -53,4 +53,10 @@ void Epoll::updateChannel(Channel* ch) {
         errif(epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, fd, &evt) == -1, "epoll add error.");
         ch->setRegisterFlag();
     }
+}
+
+void Epoll::deleteChannel(Channel* ch) {
+    int fd = ch->getfd();
+    errif(epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, fd, NULL) == -1, "epoll delete error.");
+    ch->setRegisterFlag(false);
 }
