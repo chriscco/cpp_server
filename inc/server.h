@@ -15,11 +15,17 @@ class Channel;
 class Acceptor;
 class Connection;
 
+/**
+ * @class Server 
+ * @brief 采用主从Reactor模式，让sub-reactor在线程中运行
+ */
 class Server {
 private:
-    EventLoop* _loop;
+    EventLoop* _mainReactor; // 只负责接收新连接, 之后分发给sub-reactor
     Acceptor* _acceptor;
     std::map<int, Connection*> _connections; 
+    std::vector<EventLoop*> _subReactor;
+    ThreadPool* _pool;
 public:
     Server(EventLoop*);
     ~Server();

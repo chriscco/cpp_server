@@ -12,7 +12,6 @@ class EventLoop {
 private:
     Epoll* _epoll;
     bool _quit;
-    ThreadPool* _threadPool;
 
 public:
     EventLoop();
@@ -20,5 +19,4 @@ public:
 
     void updateChannel(Channel*);
     void loop();
-    void addThread(std::function<void()>);
 };
