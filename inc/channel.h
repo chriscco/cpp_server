@@ -24,7 +24,6 @@ private:
     /** 表示希望监听的事件, 如可读可写或错误 */
     uint32_t _event;
     /** 存储当前epoll_wait()返回的具体事件 */
-    uint32_t _revent;
     uint32_t _ready;
     /** 判断当前fd是否已经加入epoll红黑树 */
     bool _registered;
