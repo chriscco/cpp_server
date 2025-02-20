@@ -14,8 +14,9 @@ Server::Server(EventLoop* eventLoop) : _mainReactor(eventLoop), _acceptor(nullpt
     _acceptor->setNewConnectionCallback(callback);
 
     int size = std::thread::hardware_concurrency();
+    _pool = new ThreadPool(size);
     for (int i = 0; i < size; i++) {
-        _subReactor.emplace_back(new Epoll());
+        _subReactor.emplace_back(new EventLoop());
     }
     for (auto& sub : _subReactor) {
         std::function<void()> sub_loop = std::bind(&EventLoop::loop, sub);

@@ -7,7 +7,6 @@ Connection::Connection(EventLoop* loop, Socket* socket) : _loop(loop), _socket(s
     _channel->enableReading();
     std::function<void()> callback = std::bind(&Connection::echo, this, _socket->getfd());
     _channel->setReadCallback(callback);
-    _channel->setUseThread(true);
     _readBuffer = new Buffer();
 }
 

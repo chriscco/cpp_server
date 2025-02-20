@@ -27,7 +27,6 @@ private:
     uint32_t _ready;
     /** 判断当前fd是否已经加入epoll红黑树 */
     bool _registered;
-    bool _useThreadPool;
     std::function<void()> _readCallback;
     std::function<void()> _writeCallback;
 public: 
@@ -41,13 +40,10 @@ public:
     void setReady(uint32_t);
     void setRegisterFlag(bool in = true);
     bool getRegisterFlag();
-    void setUseThread(bool in = true);
 
     int getfd();
     uint32_t getevent();
-    uint32_t getrevent();
     uint32_t getready();
 
-    void setrevent(uint32_t);
     void setReadCallback(std::function<void()>);
 };

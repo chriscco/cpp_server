@@ -2,7 +2,7 @@
 
 Channel::Channel(EventLoop* loop, int fd) : 
     _loop(loop), _fd(fd), _event(0), _ready(0),
-     _registered(false), _useThreadPool(true) {};
+     _registered(false) {};
 
 Channel::~Channel() {
     if (_fd != -1) {
@@ -36,21 +36,12 @@ bool Channel::getRegisterFlag() { return _registered; }
 
 void Channel::handleEvent() {
     if (_ready & (EPOLLIN | EPOLLPRI)) {
-        if (_useThreadPool) { 
-            _loop->addThread(_readCallback); 
-        } else { 
-            _readCallback(); 
-        }
+        _readCallback();
     } 
     if (_ready & EPOLLOUT) {
-        if (_useThreadPool) { 
-            _loop->addThread(_writeCallback); 
-        } else { 
-            _writeCallback(); 
-        }
+        _writeCallback();
     }
 }
 void Channel::setReadCallback(std::function<void()> callback) {
     _readCallback = callback;
 }
-void Channel::setUseThread(bool use) { _useThreadPool = use; }
