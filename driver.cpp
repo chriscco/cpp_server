@@ -21,6 +21,17 @@
 int main() {
     EventLoop* loop = new EventLoop();
     Server* server = new Server(loop);
+    server->onConnect([](Connection* connection) { 
+        connection->read();
+        if (connection->getState() == "CLOSED") {
+            connection->closeConnection();
+            return;
+        }
+        std::cout << "Message from client " << connection->getSocket()->getfd() << ": " 
+                        << connection->readBuffer() << std::endl;
+        connection->setWriteBuffer(connection->readBuffer());
+        connection->write();
+    });
     loop->loop();
     delete server;
     delete loop;

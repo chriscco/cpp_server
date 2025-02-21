@@ -26,12 +26,13 @@ private:
     std::map<int, Connection*> _connections; 
     std::vector<EventLoop*> _subReactor;
     ThreadPool* _pool;
+    std::function<void(Connection*)> _onConnectionCallback;
 public:
     Server(EventLoop*);
     ~Server();
 
-    void handleReadEvent(int);
     void newConnection(Socket*);
-    void deleteConnection(int);
+    void deleteConnection(Socket*);
+    void onConnect(std::function<void(Connection*)>);
 };
 
