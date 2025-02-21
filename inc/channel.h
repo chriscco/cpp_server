@@ -8,6 +8,7 @@
 #include "error_handler.h"
 #include "epoll.h"
 #include "event_loop.h"
+#include "common.h"
 
 class Epoll;
 class EventLoop;
@@ -17,6 +18,7 @@ class EventLoop;
  */
 class Channel {
 private:
+    DISALLOW_COPY_MOVE(Channel)
     /** 指向Epoll实例的指针, 表示当前Channel由哪一个epoll实例管理 */
     EventLoop* _loop;
     /** 当前Channel负责管理的fd */
@@ -30,7 +32,6 @@ private:
     std::function<void()> _readCallback;
     std::function<void()> _writeCallback;
 public: 
-    DISALLOW_COPY_MOVE(Channel);
     Channel(EventLoop*, int);
     ~Channel();
 

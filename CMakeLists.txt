@@ -11,15 +11,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 
 set(SRC_FILES
-    ${PROJECT_SOURCE_DIR}/src/socket.cpp
     ${PROJECT_SOURCE_DIR}/src/channel.cpp
     ${PROJECT_SOURCE_DIR}/src/epoll.cpp
     ${PROJECT_SOURCE_DIR}/src/inetaddr.cpp
     ${PROJECT_SOURCE_DIR}/src/error_handler.cpp
     ${PROJECT_SOURCE_DIR}/src/event_loop.cpp
-    ${PROJECT_SOURCE_DIR}/src/server.cpp
+    ${PROJECT_SOURCE_DIR}/src/tcpserver.cpp
     ${PROJECT_SOURCE_DIR}/src/acceptor.cpp
-    ${PROJECT_SOURCE_DIR}/src/connection.cpp
+    ${PROJECT_SOURCE_DIR}/src/tcpconnection.cpp
     ${PROJECT_SOURCE_DIR}/src/buffer.cpp
     ${PROJECT_SOURCE_DIR}/src/threadpool.cpp
 )

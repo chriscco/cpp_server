@@ -10,8 +10,7 @@
 #include "inc/epoll.h"
 #include "inc/error_handler.h"
 #include "inc/inetaddr.h"
-#include "inc/socket.h"
-#include "inc/server.h"
+#include "inc/tcpserver.h"
 
 #define MAX_EVENT 1024
 
@@ -19,21 +18,16 @@
  * 当前代码使用了ET边缘触发
  */
 int main() {
-    EventLoop* loop = new EventLoop();
-    Server* server = new Server(loop);
-    server->onConnect([](Connection* connection) { 
-        connection->read();
-        if (connection->getState() == "CLOSED") {
-            connection->closeConnection();
-            return;
-        }
-        std::cout << "Message from client " << connection->getSocket()->getfd() << ": " 
-                        << connection->readBuffer() << std::endl;
-        connection->setWriteBuffer(connection->readBuffer());
-        connection->write();
+    Server *server = new Server("127.0.0.1", 8080);
+
+    server->setOnMessageCallback([](Connection *conn) {
+        std::cout << "Message from client " << conn->id() 
+            << " is " << conn->getReadBuffer()->c_str() << std::endl;
+        conn->send(conn->getReadBuffer()->c_str()); 
     });
-    loop->loop();
+
+    server->start();
+
     delete server;
-    delete loop;
     return 0;
 }
