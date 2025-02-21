@@ -21,5 +21,5 @@ public:
 
     void updateChannel(Channel*) const;
     void deleteChannel(Channel*) const;
-    void loop() const;
+    void loop();
 };

@@ -3,6 +3,7 @@
 #include <cassert>
 #include "acceptor.h"
 #include "buffer.h"
+#include "common.h"
 
 #define READ_SIZE 1024
 
@@ -15,38 +16,40 @@ class Connection {
 private: 
     enum State {
         INVALID = 1,
-        HAND_SHAKING,
         CONNECTED,
-        FAILED, 
-        CLOSED,
+        DISCONNECTED,
     };
     EventLoop* _loop;
-    Channel* _channel{nullptr};
-    Socket* _socket;
-    Buffer* _readBuffer{nullptr};
-    Buffer* _writeBuffer{nullptr};
-    std::function<void(Socket*)> _deleteCallback;
+    int _connfd;
+    int _connid;
+    std::unique_ptr<Channel> _channel;
+    std::unique_ptr<Buffer> _readBuffer;
+    std::unique_ptr<Buffer> _writeBuffer;
+    std::function<void(int)> _onCloseCallback;
     std::function<void(Connection*)> _onConnectionCallback;
     State _state{State::INVALID};
 
     void writeNonBlocking();
     void readNonBlocking();
 public:
-    Connection(EventLoop*, Socket*);
+    DISALLOW_COPY_MOVE(Connection);
+    Connection(EventLoop*, int, int);
     ~Connection();
 
     void setWriteBuffer(const char* str);
-    void setDeleteCallback(std::function<void(Socket*)> const& callback);
-    void setConnectionCallback(std::function<void(Connection*)> const& callback);
+    void setCloseCallback(std::function<void(int)>&& callback);
+    void setConnectionCallback(std::function<void(Connection*)>&& callback);
     void closeConnection();
 
-    Socket* getSocket();
     std::string getState();
     Buffer* getReadBuffer();
     Buffer* getWriteBuffer();
-    const char* readBuffer();
-    const char* writeBuffer();
 
     void read();
     void write();
+    void send(std::string&);
+    void send(const char*, int);
+    void send(const char*);
+    int fd() const;
+    int id() const;
 };

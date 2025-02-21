@@ -3,7 +3,6 @@
 #include <cassert>
 #include "event_loop.h"
 #include "channel.h"
-#include "socket.h"
 #include "common.h"
 
 class EventLoop;

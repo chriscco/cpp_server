@@ -2,11 +2,10 @@
 #include <functional>
 #include <map> 
 
-#include "../inc/socket.h"
 #include "../inc/channel.h"
 #include "../inc/event_loop.h"
 #include "../inc/acceptor.h"
-#include "../inc/connection.h"
+#include "../inc/tcpconnection.h"
 #define READ_SIZE 1024
 
 class EventLoop;
@@ -21,18 +20,25 @@ class Connection;
  */
 class Server {
 private:
-    EventLoop* _mainReactor; // 只负责接收新连接, 之后分发给sub-reactor
-    Acceptor* _acceptor;
-    std::map<int, Connection*> _connections; 
-    std::vector<EventLoop*> _subReactor;
-    ThreadPool* _pool;
-    std::function<void(Connection*)> _onConnectionCallback;
-public:
-    Server(EventLoop*);
-    ~Server();
+    int _nextConnId;
+    std::unique_ptr<EventLoop> _mainReactor; // 只负责接收新连接, 之后分发给sub-reactor
+    std::unique_ptr<Acceptor> _acceptor;
+    std::unordered_map<int, Connection*> _connections; 
+    std::vector<std::unique_ptr<EventLoop>> _subReactor;
+    std::unique_ptr<ThreadPool> _pool;
 
-    void newConnection(Socket*);
-    void deleteConnection(Socket*);
-    void onConnect(std::function<void(Connection*)>);
+    std::function<void(Connection*)> _onConnectionCallback;
+    std::function<void(Connection*)> _onMessageCallback;
+public:
+    DISALLOW_COPY_MOVE(Server);
+    Server(const char*, const int);
+    ~Server();
+    
+    void start();
+    void newConnection(int);
+    void closeConnection(int);
+
+    void setOnConnCallback(std::function<void(Connection*)>&&);
+    void setOnMessageCallback(std::function<void(Connection*)>&&);
 };
 

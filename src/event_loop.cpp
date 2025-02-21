@@ -5,7 +5,7 @@ EventLoop::EventLoop() {
 }
 EventLoop::~EventLoop() {}
 
-void EventLoop::loop() const {
+void EventLoop::loop() {
     while (true) {
         std::vector<Channel*> channels = _epoll->poll_events(-1);
         for (auto& ch : channels) {
