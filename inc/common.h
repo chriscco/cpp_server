@@ -1,3 +1,4 @@
+#pragma once
 class Connection;
 class Buffer;
 class Server;
