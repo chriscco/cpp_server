@@ -10,7 +10,6 @@ Channel::~Channel() {
         _fd = 1;
     }
 }
-
 /**
  * @brief EPOLLPRI 代表接收紧急事件
  * EPOLL被默认设置为LT(水平触发)模式
@@ -19,7 +18,11 @@ void Channel::enableReading() {
     _event |= EPOLLIN | EPOLLPRI;
     _loop->updateChannel(this);
 }
-void Channel::setET() {
+void Channel::enableWriting() {
+    _event |= EPOLLOUT;
+    _loop->updateChannel(this);
+}
+void Channel::enableET() {
     _event |= EPOLLET;
     _loop->updateChannel(this);
 }
@@ -35,11 +38,15 @@ void Channel::setRegisterFlag(bool in) { _registered = in; }
 bool Channel::getRegisterFlag() { return _registered; }
 
 void Channel::handleEvent() {
-    if (_ready & (EPOLLIN | EPOLLPRI)) {
-        _readCallback();
+    if (_ready & (EPOLLIN | EPOLLPRI | EPOLLRDHUP)) {
+        if (_readCallback) {
+            _readCallback();
+        }
     } 
     if (_ready & EPOLLOUT) {
-        _writeCallback();
+        if (_writeCallback) {
+            _writeCallback();
+        }
     }
 }
 void Channel::setReadCallback(std::function<void()> callback) {

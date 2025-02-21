@@ -1,36 +1,51 @@
 #include "../inc/acceptor.h"
 
-Acceptor::Acceptor(EventLoop* loop) : _loop(loop){
-    _socket = new Socket();
-    InetAddr* addr = new InetAddr("127.0.0.1", 8080);
-    _socket->bind(addr);
-    _socket->listen();
-    // _socket->setnonblocking();
-    
-    _channel = new Channel(_loop, _socket->getfd());
-
+Acceptor::Acceptor(EventLoop* loop, const char* ip, const int port) : 
+                                            _loop(loop), _fd(-1) {
+    create();
+    bind(ip, port);
+    listen();
+    _channel = std::make_unique<Channel>(_loop, _fd);
     std::function<void()> callback = std::bind(&Acceptor::acceptConnection, this);
     _channel->setReadCallback(callback);
     _channel->enableReading();
-    delete addr;
 }
 
 Acceptor::~Acceptor() {
-    delete _socket;
-    delete _channel;
+    _loop->deleteChannel(_channel.get());
+    ::close(_fd);
+}
+
+void Acceptor::create() {
+    assert(_fd != -1);
+    _fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+    errif(_fd == -1, "socket creation error");
+}
+void Acceptor::bind(const char* ip, const int port) {
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = inet_addr(ip);
+    addr.sin_port = htons(port);
+    int ret = ::bind(_fd, (sockaddr*)&addr, sizeof(addr));
+    errif(ret == -1, "bind error");
+}
+void Acceptor::listen() {
+    assert(_fd != -1);
+    errif(::listen(_fd, SOMAXCONN) == -1, "listen error");
 }
 
 void Acceptor::acceptConnection() {
-    InetAddr* client_addr = new InetAddr();
-    Socket* client_socket = new Socket(_socket->accept(client_addr));
-    
-    printf("new connection from fd: %d, addr: %s, port: %d\n", client_socket->getfd(), 
-                inet_ntoa(client_addr->get_addr().sin_addr), ntohs(client_addr->get_addr().sin_port));
-    client_socket->setnonblocking();
-    newConnectionCallback(client_socket);
-    delete client_addr;
+    struct sockaddr_in client_addr;
+    socklen_t addr_len = sizeof(client_addr);
+    assert(_fd != -1);
+    int client_fd = accept4(_fd, (sockaddr*)&client_addr, &addr_len, SOCK_NONBLOCK | SOCK_CLOEXEC);
+    errif(client_fd == -1, "accept4 error");
+    if (_newConnectionCallback) {
+        _newConnectionCallback(client_fd);
+    }
 }
 
-void Acceptor::setNewConnectionCallback(std::function<void(Socket*)> callback) {
-    newConnectionCallback = callback;
+void Acceptor::setNewConnectionCallback(std::function<void(int)>const& callback) {
+    _newConnectionCallback = std::move(callback);
 }

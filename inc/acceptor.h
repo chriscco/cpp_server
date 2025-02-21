@@ -1,9 +1,10 @@
 #pragma once 
 #include <functional>
+#include <cassert>
 #include "event_loop.h"
 #include "channel.h"
 #include "socket.h"
-#include "inetaddr.h"
+#include "common.h"
 
 class EventLoop;
 class Channel;
@@ -16,12 +17,16 @@ class InetAddr;
 class Acceptor {
 private:
     EventLoop* _loop;
-    Channel* _channel;
-    Socket* _socket;
-    std::function<void(Socket*)> newConnectionCallback;
+    std::unique_ptr<Channel> _channel;
+    int _fd;
+    std::function<void(int)> _newConnectionCallback;
 public:
-    Acceptor(EventLoop*);
+    DISALLOW_COPY_MOVE(Acceptor);
+    Acceptor(EventLoop*, const char*, const int);
     ~Acceptor();
     void acceptConnection();
-    void setNewConnectionCallback(std::function<void(Socket*)>);
+    void setNewConnectionCallback(std::function<void(int)> const&);
+    void create();
+    void bind(const char*, const int);
+    void listen();
 };

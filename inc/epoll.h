@@ -9,6 +9,7 @@
 
 #include "channel.h"
 #include "error_handler.h"
+#include "common.h"
 
 #define MAX_EVENTS_SIZE 1000
 
@@ -19,6 +20,7 @@ private:
     int _epoll_fd;
     struct epoll_event* _events;
 public:
+    DISALLOW_COPY_MOVE(Epoll);
     Epoll();
     ~Epoll();
 

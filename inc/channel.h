@@ -30,11 +30,13 @@ private:
     std::function<void()> _readCallback;
     std::function<void()> _writeCallback;
 public: 
+    DISALLOW_COPY_MOVE(Channel);
     Channel(EventLoop*, int);
     ~Channel();
 
     void enableReading();
-    void setET();
+    void enableWriting();
+    void enableET();
     void handleEvent();
 
     void setReady(uint32_t);
