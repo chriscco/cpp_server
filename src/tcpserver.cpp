@@ -8,29 +8,24 @@
  */
 Server::Server(EventLoop* loop, const char* ip, const int port) : 
                     _mainReactor(loop), _nextConnId(1) {
-    _mainReactor = std::make_unique<EventLoop>();
-    _acceptor = std::make_unique<Acceptor>(_mainReactor.get(), ip, port);
+    _acceptor = std::make_unique<Acceptor>(_mainReactor, ip, port);
 
     /** callback被调用时自动调用newConnection(), 并传入socketfd */
     std::function<void(int)> callback = std::bind(&Server::handleNewConnection, this, std::placeholders::_1);
     _acceptor->setNewConnectionCallback(callback);
 
-    int size = static_cast<int>(std::thread::hardware_concurrency());
-    _pool = std::make_unique<ThreadPool>(size);
-    for (int i = 0; i < size; i++) {
-        std::unique_ptr<EventLoop> subReactor = std::make_unique<EventLoop>();
-        _subReactor.emplace_back(std::move(subReactor));
-    }
+    _pool = std::make_unique<EventLoopThreadPool>(_mainReactor);
 }
 
 Server::~Server() {};
 
 void Server::start() {
-    for (auto& sub : _subReactor) {
-        std::function<void()> sub_loop = std::bind(&EventLoop::loop, sub.get());
-        _pool->add(std::move(sub_loop));
-    }
+    _pool->start();
     _mainReactor->loop();
+}
+
+void Server::setThreadSize(int size) {
+    _pool->setThreadSize(size);
 }
 
 /**
@@ -39,10 +34,12 @@ void Server::start() {
  */
 void Server::handleNewConnection(int fd) {
     assert(fd != -1);
-    uint64_t random = fd % _subReactor.size();
 
-    std::shared_ptr<Connection> connection = std::make_shared<Connection>(_subReactor[random].get(), fd, _nextConnId);
-    std::function<void(const std::shared_ptr<Connection>&)> callback = std::bind(&Server::handleCloseConnection, this, std::placeholders::_1);
+    EventLoop* subReactor = _pool->nextloop();
+    std::shared_ptr<Connection> connection = std::make_shared<Connection>(subReactor, fd, _nextConnId);
+
+    std::function<void(const std::shared_ptr<Connection>&)> callback = 
+        std::bind(&Server::handleCloseConnection, this, std::placeholders::_1);
     connection->setConnectionCallback(std::move(_onConnectionCallback));
     connection->setCloseCallback(std::move(callback));
     connection->setMessageCallback(std::move(_onMessageCallback));

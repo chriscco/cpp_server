@@ -2,10 +2,13 @@
 #include <functional>
 #include <map> 
 
-#include "../inc/channel.h"
-#include "../inc/event_loop.h"
-#include "../inc/acceptor.h"
-#include "../inc/tcpconnection.h"
+#include "channel.h"
+#include "event_loop.h"
+#include "acceptor.h"
+#include "tcpconnection.h"
+#include "eventLoopThread.h"
+#include "eventLoopThreadPool.h"
+
 #define READ_SIZE 1024
 
 class EventLoop;
@@ -21,11 +24,10 @@ class Connection;
 class Server {
 private:
     int _nextConnId;
-    std::unique_ptr<EventLoop> _mainReactor; // 只负责接收新连接, 之后分发给sub-reactor
+    EventLoop* _mainReactor; // 只负责接收新连接, 之后分发给sub-reactor
     std::unique_ptr<Acceptor> _acceptor;
     std::unordered_map<int, std::shared_ptr<Connection>> _connections; 
-    std::vector<std::unique_ptr<EventLoop>> _subReactor;
-    std::unique_ptr<ThreadPool> _pool;
+    std::unique_ptr<EventLoopThreadPool> _pool;
 
     std::function<void(const std::shared_ptr<Connection>&)> _onConnectionCallback;
     std::function<void(const std::shared_ptr<Connection>&)> _onMessageCallback;
@@ -42,5 +44,7 @@ public:
 
     void setOnConnCallback(std::function<void(const std::shared_ptr<Connection>&)>&&);
     void setOnMessageCallback(std::function<void(const std::shared_ptr<Connection>&)>&&);
+
+    void setThreadSize(int);
 };
 

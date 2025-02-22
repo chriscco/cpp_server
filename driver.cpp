@@ -15,17 +15,19 @@
 
 #define MAX_EVENT 1024
 
-class EchoServer {
-public:
-    EchoServer(EventLoop *loop, const char *ip, const int port);
-    ~EchoServer();
+class EchoServer{
+    public:
+        EchoServer(EventLoop *loop, const char *ip, const int port);
+        ~EchoServer();
 
-    void start();
-    void onConnection(const std::shared_ptr<Connection> & conn);
-    void onMessage(const std::shared_ptr<Connection> & conn);
+        void start();
+        void onConnection(const std::shared_ptr<Connection> & conn);
+        void onMessage(const std::shared_ptr<Connection> & conn);
 
-private:
-    Server _server;
+        void setThreadSize(int thread_nums);
+
+    private:
+        Server _server;
 };
 
 EchoServer::EchoServer(EventLoop *loop, const char *ip, const int port) :  _server(loop, ip, port){
@@ -62,20 +64,25 @@ void EchoServer::onMessage(const std::shared_ptr<Connection> & conn){
     }
 }
 
+void EchoServer::setThreadSize(int thread_nums) { _server.setThreadSize(thread_nums); }
+
 int main(int argc, char *argv[]){
     int port;
-    if (argc <= 1) {
+    if (argc <= 1)
+    {
         port = 8080;
-    } else if (argc == 2){
+    }else if (argc == 2){
         port = atoi(argv[1]);
-    } else{
+    }else{
         printf("error");
         exit(0);
     }
+    int size = std::thread::hardware_concurrency();
     EventLoop *loop = new EventLoop();
     EchoServer *server = new EchoServer(loop, "127.0.0.1", port);
+    server->setThreadSize(size);
     server->start();
-    
+
     // delete loop;
     // delete server;
     return 0;

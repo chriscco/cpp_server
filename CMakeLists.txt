@@ -22,6 +22,8 @@ set(SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/buffer.cpp
     ${PROJECT_SOURCE_DIR}/src/threadpool.cpp
     ${PROJECT_SOURCE_DIR}/src/currentThread.cpp
+    ${PROJECT_SOURCE_DIR}/src/eventLoopThread.cpp
+    ${PROJECT_SOURCE_DIR}/src/eventLoopThreadPool.cpp
 )
 add_executable(driver driver.cpp ${SRC_FILES})
 
