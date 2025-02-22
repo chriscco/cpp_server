@@ -18,7 +18,7 @@ Server::Server(const char* ip, const int port) : _nextConnId(1) {
     _pool = std::make_unique<ThreadPool>(size);
     for (int i = 0; i < size; i++) {
         std::unique_ptr<EventLoop> subReactor = std::make_unique<EventLoop>();
-        _subReactor.emplace_back(subReactor);
+        _subReactor.emplace_back(std::move(subReactor));
     }
 }
 

@@ -24,8 +24,8 @@ set(SRC_FILES
 )
 add_executable(driver driver.cpp ${SRC_FILES})
 
-add_executable(client client.cpp ${SRC_FILES})
+# add_executable(client client.cpp ${SRC_FILES})
 
-add_executable(test test.cpp ${SRC_FILES})
+# add_executable(test test.cpp ${SRC_FILES})
 
 target_link_libraries(driver PRIVATE Threads::Threads)
