@@ -17,7 +17,7 @@ Acceptor::~Acceptor() {
 }
 
 void Acceptor::create() {
-    assert(_fd != -1);
+    assert(_fd == -1);
     _fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     errif(_fd == -1, "socket creation error");
 }
