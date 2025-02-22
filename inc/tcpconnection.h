@@ -12,7 +12,10 @@ class Socket;
 class Channel;
 class Buffer;
 
-class Connection {
+/**
+ * @brief std::enable_shared_from_this 允许在Connection类中创建自身的shared_ptr
+ */
+class Connection : std::enable_shared_from_this<Connection> {
 private: 
     enum State {
         INVALID = 1,
@@ -25,8 +28,10 @@ private:
     std::unique_ptr<Channel> _channel;
     std::unique_ptr<Buffer> _readBuffer;
     std::unique_ptr<Buffer> _writeBuffer;
-    std::function<void(int)> _onCloseCallback;
-    std::function<void(Connection*)> _onConnectionCallback;
+    /** 参数类型采用 const std::shared_ptr<Connection> & 防止导致引用计数器增加 */
+    std::function<void(const std::shared_ptr<Connection> &)> _onCloseCallback;
+    std::function<void(const std::shared_ptr<Connection> &)> _onConnectionCallback;
+    std::function<void(const std::shared_ptr<Connection> &)> _onMessageCallback;
     State _state{State::INVALID};
 
     void writeNonBlocking();
@@ -36,14 +41,24 @@ public:
     Connection(EventLoop*, int, int);
     ~Connection();
 
+    void connectionEstablish();
+    void connectionDestruct();
+
     void setWriteBuffer(const char* str);
-    void setCloseCallback(std::function<void(int)>&& callback);
-    void setConnectionCallback(std::function<void(Connection*)>&& callback);
-    void closeConnection();
+    /** 建立连接时调用 */
+    void setConnectionCallback(std::function<void(const std::shared_ptr<Connection>&)>&&);
+    /** 关闭连接时调用 */
+    void setCloseCallback(std::function<void(const std::shared_ptr<Connection>&)>&&);
+    /** 接收到信息时调用 */
+    void setMessageCallback(std::function<void(const std::shared_ptr<Connection>&)>&&);
+
+    void handleConnection();
+    void handleClose();
 
     std::string getState();
     Buffer* getReadBuffer();
     Buffer* getWriteBuffer();
+    EventLoop* getLoop();
 
     void read();
     void write();

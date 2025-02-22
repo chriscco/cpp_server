@@ -29,8 +29,11 @@ private:
     uint32_t _ready;
     /** 判断当前fd是否已经加入epoll红黑树 */
     bool _registered;
+    /** 判断当前弱指针是否已经指向共享指针 */
+    bool _tied;
     std::function<void()> _readCallback;
     std::function<void()> _writeCallback;
+    std::weak_ptr<void> _tie;
 public: 
     Channel(EventLoop*, int);
     ~Channel();
@@ -39,14 +42,18 @@ public:
     void enableWriting();
     void enableET();
     void handleEvent();
+    void handleEventWithGuard();
 
     void setReady(uint32_t);
     void setRegisterFlag(bool in = true);
     bool getRegisterFlag();
 
-    int getfd();
-    uint32_t getevent();
-    uint32_t getready();
+    void tieWeak(const std::shared_ptr<void>& ptr);
 
-    void setReadCallback(std::function<void()>);
+    int getfd() const ;
+    uint32_t getevent() const ;
+    uint32_t getready() const;
+
+    void setWriteCallback(std::function<void()>&&);
+    void setReadCallback(std::function<void()>&&);
 };

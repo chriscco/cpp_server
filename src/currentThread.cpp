@@ -1,10 +1,10 @@
-#include "../inc/currentThread.h"
+
 #include <sys/syscall.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "../inc/currentThread.h"
 
-namespace CurrentThread
-{
+namespace CurrentThread {
     __thread int t_cachedTid = 0;
     __thread char t_formattedTid[32];
     __thread int t_formattedTidLength;

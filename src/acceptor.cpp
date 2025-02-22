@@ -7,7 +7,7 @@ Acceptor::Acceptor(EventLoop* loop, const char* ip, const int port) :
     listen();
     _channel = std::make_unique<Channel>(_loop, _fd);
     std::function<void()> callback = std::bind(&Acceptor::acceptConnection, this);
-    _channel->setReadCallback(callback);
+    _channel->setReadCallback(std::move(callback));
     _channel->enableReading();
 }
 

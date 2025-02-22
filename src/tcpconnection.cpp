@@ -16,6 +16,19 @@ Connection::~Connection() {
     ::close(_connfd);
 }
 
+void Connection::connectionEstablish() {
+    _state = State::CONNECTED;
+    _channel->tieWeak(shared_from_this());
+    _channel->enableReading();
+    if (_onConnectionCallback) {
+        _onConnectionCallback(shared_from_this());
+    }
+}
+
+void Connection::connectionDestruct() {
+    _loop->deleteChannel(_channel.get());
+}
+
 void Connection::read() {
     assert(_state == State::CONNECTED);
     _readBuffer->clear();
@@ -37,11 +50,18 @@ void Connection::send(const char* msg) {
     write();
 }
 
-void Connection::closeConnection() {
+void Connection::handleConnection() {
+    read();
+    if (_onMessageCallback) {
+        _onMessageCallback(shared_from_this());
+    }
+}
+
+void Connection::handleClose() {
     if (_state != State::DISCONNECTED) {
         _state = State::DISCONNECTED;
         if (_onCloseCallback) {
-          _onCloseCallback(_connfd);
+          _onCloseCallback(shared_from_this());
         }
     }
 }
@@ -61,11 +81,11 @@ void Connection::readNonBlocking() {
         break;
       } else if (bytes_read == 0) {  // EOF，客户端断开连接
         printf("read EOF, client fd %d disconnected\n", _connfd);
-        closeConnection();
+        handleClose();
         break;
       } else {
         printf("Other error on client fd %d\n", _connfd);
-        closeConnection();
+        handleClose();
         break;
       }
     }
@@ -77,20 +97,20 @@ void Connection::writeNonBlocking() {
     int data_size = _writeBuffer->size();
     int data_left = data_size;
     while (data_left > 0) {
-      ssize_t bytes_write = ::write(_connfd, buf + data_size - data_left, data_left);
-      if (bytes_write == -1 && errno == EINTR) {
-        printf("continue writing\n");
-        continue;
-      }
-      if (bytes_write == -1 && errno == EAGAIN) {
-        break;
-      }
-      if (bytes_write == -1) {
-        printf("Other error on client fd %d\n", _connfd);
-        closeConnection();
-        break;
-      }
-      data_left -= bytes_write;
+        ssize_t bytes_write = ::write(_connfd, buf + data_size - data_left, data_left);
+        if (bytes_write == -1 && errno == EINTR) {
+            printf("continue writing\n");
+            continue;
+        }
+        if (bytes_write == -1 && errno == EAGAIN) {
+            break;
+        }
+        if (bytes_write == -1) {
+            printf("Other error on client fd %d\n", _connfd);
+            handleClose();
+            break;
+        }
+        data_left -= bytes_write;
     }
 }
 
@@ -99,15 +119,19 @@ void Connection::setWriteBuffer(const char* str) { _writeBuffer->setBuffer(str);
 std::string Connection::getState() { return std::to_string(_state); };
 Buffer* Connection::getReadBuffer() { return _readBuffer.get(); };
 Buffer* Connection::getWriteBuffer() { return _writeBuffer.get(); };
+EventLoop* Connection::getLoop() { return _loop; };
 
 int Connection::fd() const { return _connfd; }
 int Connection::id() const { return _connid; }
 
-void Connection::setCloseCallback(std::function<void(int)>&& callback) {
+void Connection::setCloseCallback(std::function<void(const std::shared_ptr<Connection>&)>&& callback) {
     _onCloseCallback = std::move(callback);
 }
 
-void Connection::setConnectionCallback(std::function<void(Connection*)>&& callback) {
-    _onConnectionCallback = callback;
-    _channel->setReadCallback([this]() { _onConnectionCallback(this); });
+void Connection::setConnectionCallback(std::function<void(const std::shared_ptr<Connection>&)>&& callback) {
+    _onConnectionCallback = std::move(callback);
+}
+
+void Connection::setMessageCallback(std::function<void(const std::shared_ptr<Connection>&)>&& callback) {
+    _onMessageCallback = std::move(callback);
 }
