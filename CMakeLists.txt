@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(cpp_server)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 include_directories(${PROJECT_SOURCE_DIR}/inc)
 
@@ -24,6 +24,8 @@ set(SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/currentThread.cpp
     ${PROJECT_SOURCE_DIR}/src/eventLoopThread.cpp
     ${PROJECT_SOURCE_DIR}/src/eventLoopThreadPool.cpp
+    ${PROJECT_SOURCE_DIR}/src/timerQueue.cpp
+    ${PROJECT_SOURCE_DIR}/src/timer.cpp
 )
 add_executable(driver driver.cpp ${SRC_FILES})
 
