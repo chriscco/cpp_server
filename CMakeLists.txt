@@ -26,10 +26,13 @@ set(SRC_FILES
     ${PROJECT_SOURCE_DIR}/src/eventLoopThreadPool.cpp
     ${PROJECT_SOURCE_DIR}/src/timerQueue.cpp
     ${PROJECT_SOURCE_DIR}/src/timer.cpp
+    ${PROJECT_SOURCE_DIR}/src/logging.cpp
+    ${PROJECT_SOURCE_DIR}/src/logFile.cpp
+    ${PROJECT_SOURCE_DIR}/src/logStream.cpp
 )
 add_executable(driver driver.cpp ${SRC_FILES})
 
-# add_executable(client client.cpp ${SRC_FILES})
+add_executable(test logTest.cpp ${SRC_FILES})
 
 # add_executable(test test.cpp ${SRC_FILES})
 
