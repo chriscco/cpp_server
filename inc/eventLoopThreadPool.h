@@ -1,5 +1,4 @@
 #pragma once
-#include <numa.h>
 #include "common.h"
 #include "event_loop.h"
 #include "eventLoopThread.h"
@@ -17,9 +16,6 @@ class EventLoopThreadPool{
 
         // 获取线程池中的EventLoop
         EventLoop *nextloop();
-
-        /* 绑定线程至numa节点 */
-        void bind_numa();
 
     private:
         EventLoop *_mainReactor;

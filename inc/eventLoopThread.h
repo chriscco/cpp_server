@@ -1,4 +1,5 @@
 #pragma once 
+#include <numa.h>
 #include "common.h"
 #include "event_loop.h"
 class EventLoop;
@@ -12,6 +13,9 @@ class EventLoopThread {
 
         // 启动线程， 使EventLoop成为IO线程
         EventLoop *startLoop();
+
+        /* 绑定线程至numa节点 */
+        void bind_numa();
 
     private:
         // 线程运行的函数

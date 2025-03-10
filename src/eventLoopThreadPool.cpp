@@ -30,10 +30,3 @@ EventLoop *EventLoopThreadPool::nextloop(){
 void EventLoopThreadPool::setThreadSize(int thread_nums){
     _thread_num = thread_nums;
 }
-
-void EventLoopThreadPool::bind_numa() {
-    cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-
-    int cpu_count = numa_num
-}

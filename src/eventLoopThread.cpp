@@ -25,6 +25,9 @@ EventLoop *EventLoopThread::startLoop(){
 }
 
 void EventLoopThread::threadFunction(){
+
+    bind_numa();
+
     // 由IO线程创建EventLoop对象
     EventLoop loop;
     {
@@ -38,4 +41,23 @@ void EventLoopThread::threadFunction(){
         std::unique_lock<std::mutex> lock(_mutex);
         _loop = nullptr;
     }
+}
+
+void EventLoopThread::bind_numa() {
+    /* 位图结构, 用于标识一个线程可以在哪些 CPU 核心上运行 */
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+
+    pthread_t native_handle = _thread.native_handle();
+
+    int cpu_count = numa_num_configured_cpus();
+    for (int i = 0; i < cpu_count; i++) {
+        if (numa_node_of_cpu(i) == _numa_node) {
+            CPU_SET(i, &cpuset);
+        }
+    }
+
+    /* 线程将只会在这些 CPU 核心上运行 */
+    errif(pthread_setaffinity_np(native_handle, sizeof(cpuset), &cpuset) < 0, 
+            "error binding affinity");
 }
