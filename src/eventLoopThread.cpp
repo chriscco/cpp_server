@@ -1,6 +1,6 @@
 #include "../inc/eventLoopThread.h"
 
-EventLoopThread::EventLoopThread() : _loop(nullptr){}
+EventLoopThread::EventLoopThread(int numa_node) : _loop(nullptr), _numa_node(numa_node) {};
 
 EventLoopThread::~EventLoopThread() {};
 

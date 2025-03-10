@@ -7,6 +7,7 @@ class EventLoopThread {
     public:
         DISALLOW_COPY_MOVE(EventLoopThread);
         EventLoopThread();
+        EventLoopThread(int);
         ~EventLoopThread();
 
         // 启动线程， 使EventLoop成为IO线程
@@ -21,4 +22,5 @@ class EventLoopThread {
         std::thread _thread;
         std::mutex _mutex;
         std::condition_variable _condition_var;
+        int _numa_node;
 };

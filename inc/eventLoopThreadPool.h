@@ -1,4 +1,5 @@
 #pragma once
+#include <numa.h>
 #include "common.h"
 #include "event_loop.h"
 #include "eventLoopThread.h"
@@ -17,6 +18,9 @@ class EventLoopThreadPool{
         // 获取线程池中的EventLoop
         EventLoop *nextloop();
 
+        /* 绑定线程至numa节点 */
+        void bind_numa();
+
     private:
         EventLoop *_mainReactor;
         std::vector<std::unique_ptr<EventLoopThread>> _threads;
@@ -24,6 +28,7 @@ class EventLoopThreadPool{
         std::vector<EventLoop *> _loops;
 
         int _thread_num;
-
         int _next;
+
+        static constexpr int _NUMA_NODES_NUM = 2;
 };
